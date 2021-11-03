@@ -1,4 +1,5 @@
 import pygame
+import os
 
 FPS = 60
 TIME = 0
@@ -14,11 +15,14 @@ running = True
 
 pygame.display.set_caption("遊戲")
 
+background_img = pygame.image.load(os.path.join("image", "background.png")).convert()
+player_img = pygame.image.load(os.path.join("image", "player.png")).convert()
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((40, 40))
-        self.image.fill((0, 255, 0))
+        self.image = pygame.transform.scale(player_img, (70, 70))
+        self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
         self.rect.center = (250, HEIGHT-35)
         self.MoveX = 5
@@ -115,7 +119,7 @@ while running:
     all_sprites.update()
     pygame.sprite.groupcollide(PlayerBullet, BossBullet, True, True)
 
-    screen.fill((255, 255, 255))
+    screen.blit(background_img, (0, 0))
     all_sprites.draw(screen)
     pygame.display.update()
 
