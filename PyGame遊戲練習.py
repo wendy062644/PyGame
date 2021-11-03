@@ -1,6 +1,7 @@
 import pygame
 
 FPS = 60
+TIME = 0
 
 WIDTH = 500
 HEIGHT = 600
@@ -29,11 +30,14 @@ class Player(pygame.sprite.Sprite):
         if key_pressed[pygame.K_LEFT] and self.rect.x > 0:
             self.rect.x -= self.MoveX  
 
+    def Pattack(self):
+        Pbullet = PlayerAttack(self.rect.centerx, self.rect.top)
+        all_sprites.add(Pbullet)
 
 class Boss(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30, 30))
+        self.image = pygame.Surface((100, 60))
         self.image.fill((255, 0, 0))
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH/2
@@ -42,11 +46,44 @@ class Boss(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x += self.BossMove
-        if self.rect.x > WIDTH-30:
+        if self.rect.x > WIDTH-100:
             self.BossMove = -3
         if self.rect.x < 0:
             self.BossMove = 3
 
+    def Battack(self):
+        Bbullet = BossAttack(self.rect.x, self.rect.y)
+        all_sprites.add(Bbullet)
+
+class PlayerAttack(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((10, 30))
+        self.image.fill((255, 255, 0))
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.bottom = y
+        self.Speed = -10
+
+    def update(self):
+        self.rect.y += self.Speed
+        if self.rect.y < 0:
+            self.kill()
+
+class BossAttack(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((20, 35))
+        self.image.fill((255, 255, 0))
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x + 50
+        self.rect.bottom = y + 85
+        self.Speed = 10
+
+    def update(self):
+        self.rect.y += self.Speed
+        if self.rect.y > HEIGHT:
+            self.kill()
 
 all_sprites = pygame.sprite.Group()
 player = Player()
@@ -56,15 +93,22 @@ all_sprites.add(boss)
 
 while running:
 
+    TIME += 1
+
     clock.tick(FPS)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                player.Pattack()
+    
+    if TIME == 60:
+        boss.Battack()
+        TIME = 0
 
     all_sprites.update()
-
-
     screen.fill((255, 255, 255))
     all_sprites.draw(screen)
     pygame.display.update()
