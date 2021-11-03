@@ -33,6 +33,7 @@ class Player(pygame.sprite.Sprite):
     def Pattack(self):
         Pbullet = PlayerAttack(self.rect.centerx, self.rect.top)
         all_sprites.add(Pbullet)
+        PlayerBullet.add(Pbullet)
 
 class Boss(pygame.sprite.Sprite):
     def __init__(self):
@@ -54,6 +55,7 @@ class Boss(pygame.sprite.Sprite):
     def Battack(self):
         Bbullet = BossAttack(self.rect.x, self.rect.y)
         all_sprites.add(Bbullet)
+        BossBullet.add(Bbullet)
 
 class PlayerAttack(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -86,6 +88,8 @@ class BossAttack(pygame.sprite.Sprite):
             self.kill()
 
 all_sprites = pygame.sprite.Group()
+PlayerBullet = pygame.sprite.Group()
+BossBullet = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
 boss = Boss()
@@ -104,11 +108,13 @@ while running:
             if event.key == pygame.K_SPACE:
                 player.Pattack()
     
-    if TIME == 60:
+    if TIME == 40:
         boss.Battack()
         TIME = 0
 
     all_sprites.update()
+    pygame.sprite.groupcollide(PlayerBullet, BossBullet, True, True)
+
     screen.fill((255, 255, 255))
     all_sprites.draw(screen)
     pygame.display.update()
