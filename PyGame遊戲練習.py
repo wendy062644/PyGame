@@ -10,6 +10,7 @@ WIDTH = 500
 HEIGHT = 600
 
 pygame.init() #初始化
+pygame.mixer.init
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
@@ -21,6 +22,9 @@ background_img = pygame.image.load(os.path.join("image", "background.png")).conv
 player_img = pygame.image.load(os.path.join("image", "player.png")).convert()
 boss_img = pygame.image.load(os.path.join("image", "boss.png")).convert()
 
+shoot_sound = pygame.mixer.Sound(os.path.join("sound", "shoot.wav"))
+damaged_sound = pygame.mixer.Sound(os.path.join("sound", "damaged.wav"))
+
 def print_health(surf, hp, x, y):
     if hp < 0:
         hp = 0
@@ -31,6 +35,18 @@ def print_health(surf, hp, x, y):
     fill_rect = pygame.Rect(x, y, fill, BAR_HEIGTH)
     pygame.draw.rect(surf, (0, 255, 0), fill_rect)
     pygame.draw.rect(surf, (255, 255, 255), outline_rect, 2)
+
+def print_bosshealth(surf, bosshp, x, y):
+    if bosshp < 0:
+        bosshp = 0
+    BAR_LENGTH = WIDTH-20 
+    BAR_HEIGTH = 10
+    fill = (bosshp/500)*BAR_LENGTH
+    outline_rect = pygame.Rect(10, 1, BAR_LENGTH, BAR_HEIGTH)
+    fill_rect = pygame.Rect(10, 1, fill, BAR_HEIGTH)
+    pygame.draw.rect(surf, (255, 0 , 0), fill_rect)
+    pygame.draw.rect(surf, (255, 255, 255), outline_rect, 2)
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -53,6 +69,7 @@ class Player(pygame.sprite.Sprite):
         Pbullet = PlayerAttack(self.rect.centerx, self.rect.top)
         all_sprites.add(Pbullet)
         PlayerBullet.add(Pbullet)
+        shoot_sound.play()
 
 class Boss(pygame.sprite.Sprite):
     def __init__(self):
@@ -61,8 +78,9 @@ class Boss(pygame.sprite.Sprite):
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH/2
-        self.rect.y = 0
+        self.rect.y = 30
         self.BossMove = 3
+        self.health = 500
 
     def update(self):
         self.rect.x += self.BossMove
@@ -137,12 +155,19 @@ while running:
     hits = pygame.sprite.spritecollide(player, BossBullet, True, pygame.sprite.collide_circle)
     for hit in hits:
         player.health -= 10
+        damaged_sound.play()
         if player.health == 0:
             running = False
+
+    bosshits = pygame.sprite.spritecollide(boss, PlayerBullet, True, pygame.sprite.collide_circle)
+    for hit in bosshits:
+        boss.health -= 10
+        damaged_sound.play()
 
     screen.blit(background_img, (0, 0))
     all_sprites.draw(screen)
     print_health(screen, player.health, 10, HEIGHT-15)
+    print_bosshealth(screen, boss.health, 10, HEIGHT-15)
     pygame.display.update()
 
 pygame.quit()
