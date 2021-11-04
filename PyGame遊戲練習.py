@@ -43,9 +43,14 @@ def draw_text(surf, text, size, x, y):
     surf.blit(text_surface, text_rect)
 
 def draw_lobby():
-    draw_text(screen, '大戰外星人', 64, WIDTH/2, HEIGHT/4)
-    draw_text(screen, '遊戲說明: → 右移  ← 左移  空白鍵攻擊', 25, WIDTH/2, HEIGHT/2-30)
-    draw_text(screen, '-按任意建開始-', 30, WIDTH/2, HEIGHT-100)
+    draw_text(screen, '飛機冒險趣', 64, WIDTH/2, HEIGHT/4-60)
+    draw_text(screen, '遊戲說明', 20, WIDTH/2, HEIGHT/4 + 50)
+    draw_text(screen, '在一次的任務中，遇到一群具攻擊性', 20, WIDTH/2, HEIGHT/4 + 75)
+    draw_text(screen, '的不明生物，當前的首要目標是消滅', 20, WIDTH/2, HEIGHT/4 + 100)
+    draw_text(screen, '他們，並存活下來', 20, WIDTH/2, HEIGHT/4 + 125)
+    draw_text(screen, '操作說明', 20, WIDTH/2, HEIGHT*3/4-130)
+    draw_text(screen, '→ 右移  ← 左移  空白鍵攻擊', 20, WIDTH/2, HEIGHT*3/4-100)
+    draw_text(screen, '-按任意建開始-', 24, WIDTH/2, HEIGHT-100)
     pygame.display.update()
     waitting = True
     while waitting:
@@ -53,10 +58,12 @@ def draw_lobby():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                waitting = False
+                return True
                 pygame.quit()
+                waitting = False
             elif event.type == pygame.KEYUP:
                 waitting = False
+                return False
 
 def draw_end():
     screen.blit(background_img, (0, 0))
@@ -217,7 +224,9 @@ show_lobby = True
 while running:
 
     if show_lobby:
-        draw_lobby()
+        close = draw_lobby()
+        if close:
+            break
         show_lobby = False
 
     TIME += 1
