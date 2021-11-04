@@ -1,6 +1,8 @@
 import pygame
 import os
 
+from pygame import draw
+
 FPS = 60
 TIME = 0
 
@@ -17,6 +19,18 @@ pygame.display.set_caption("遊戲")
 
 background_img = pygame.image.load(os.path.join("image", "background.png")).convert()
 player_img = pygame.image.load(os.path.join("image", "player.png")).convert()
+boss_img = pygame.image.load(os.path.join("image", "boss.png")).convert()
+
+def print_health(surf, hp, x, y):
+    if hp < 0:
+        hp = 0
+    BAR_LENGTH = WIDTH-20 
+    BAR_HEIGTH = 10
+    fill = (hp/100)*BAR_LENGTH
+    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGTH)
+    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGTH)
+    pygame.draw.rect(surf, (0, 255, 0), fill_rect)
+    pygame.draw.rect(surf, (255, 255, 255), outline_rect, 2)
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -24,12 +38,13 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(player_img, (70, 70))
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
-        self.rect.center = (250, HEIGHT-35)
+        self.rect.center = (250, HEIGHT-55)
         self.MoveX = 5
+        self.health = 100
 
     def update(self):
         key_pressed = pygame.key.get_pressed()
-        if key_pressed[pygame.K_RIGHT] and self.rect.x < WIDTH-40:
+        if key_pressed[pygame.K_RIGHT] and self.rect.x < WIDTH-50:
             self.rect.x += self.MoveX
         if key_pressed[pygame.K_LEFT] and self.rect.x > 0:
             self.rect.x -= self.MoveX  
@@ -42,8 +57,8 @@ class Player(pygame.sprite.Sprite):
 class Boss(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((100, 60))
-        self.image.fill((255, 0, 0))
+        self.image = pygame.transform.scale(boss_img, (150, 70))
+        self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH/2
         self.rect.y = 0
@@ -51,7 +66,7 @@ class Boss(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x += self.BossMove
-        if self.rect.x > WIDTH-100:
+        if self.rect.x > WIDTH-150:
             self.BossMove = -3
         if self.rect.x < 0:
             self.BossMove = 3
@@ -119,8 +134,15 @@ while running:
     all_sprites.update()
     pygame.sprite.groupcollide(PlayerBullet, BossBullet, True, True)
 
+    hits = pygame.sprite.spritecollide(player, BossBullet, True, pygame.sprite.collide_circle)
+    for hit in hits:
+        player.health -= 10
+        if player.health == 0:
+            running = False
+
     screen.blit(background_img, (0, 0))
     all_sprites.draw(screen)
+    print_health(screen, player.health, 10, HEIGHT-15)
     pygame.display.update()
 
 pygame.quit()
