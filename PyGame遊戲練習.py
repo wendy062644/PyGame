@@ -9,6 +9,7 @@ TIME = 0
 
 WIDTH = 500
 HEIGHT = 600
+BOSSHEALTH = 200
 
 pygame.init() #初始化
 pygame.mixer.init
@@ -69,7 +70,6 @@ def draw_end():
                 pygame.quit()
 
 
-
 def print_health(surf, hp, x, y):
     if hp < 0:
         hp = 0
@@ -86,7 +86,7 @@ def print_bosshealth(surf, bosshp, x, y):
         bosshp = 0
     BAR_LENGTH = WIDTH-20 
     BAR_HEIGTH = 10
-    fill = (bosshp/500)*BAR_LENGTH
+    fill = (bosshp/BOSSHEALTH)*BAR_LENGTH
     outline_rect = pygame.Rect(10, 1, BAR_LENGTH, BAR_HEIGTH)
     fill_rect = pygame.Rect(10, 1, fill, BAR_HEIGTH)
     pygame.draw.rect(surf, (255, 0 , 0), fill_rect)
@@ -125,9 +125,17 @@ class Boss(pygame.sprite.Sprite):
         self.rect.centerx = WIDTH/2
         self.rect.y = 30
         self.BossMove = 3
-        self.health = 500
+        self.health = 200
+        self.lives = 1
+        self.hidden = False
+        self.hide_time = 0
 
     def update(self):
+        if self.hidden and pygame.time.get_ticks() - self.hide_time > 1000:
+            self.hide_time = False
+            self.rect.centerx = WIDTH/2
+            self.rect.y = 30
+
         self.rect.x += self.BossMove
         if self.rect.x > WIDTH-150:
             self.BossMove = -3
@@ -138,6 +146,11 @@ class Boss(pygame.sprite.Sprite):
         Bbullet = BossAttack(self.rect.x, self.rect.y)
         all_sprites.add(Bbullet)
         BossBullet.add(Bbullet)
+
+    def hide(self):
+        self.hidden = True
+        self.hide_time = pygame.time.get_ticks()
+        self.rect.center = (WIDTH/2, HEIGHT+500)
 
 class PlayerAttack(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -215,6 +228,11 @@ while running:
     for hit in bosshits:
         boss.health -= 10
         damaged_sound.play()
+        if boss.health == 0:
+            boss.lives += 1
+            boss.health =  boss.lives*200
+            BOSSHEALTH = boss.lives*200
+            boss.hide()
 
     screen.blit(background_img, (0, 0))
     all_sprites.draw(screen)
