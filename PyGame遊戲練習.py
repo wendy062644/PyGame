@@ -23,6 +23,9 @@ pygame.display.set_caption("遊戲")
 background_img = pygame.image.load(os.path.join("image", "background.png")).convert()
 player_img = pygame.image.load(os.path.join("image", "player.png")).convert()
 boss_img = pygame.image.load(os.path.join("image", "boss.png")).convert()
+fireball_img = pygame.image.load(os.path.join("image", "fireball.png")).convert()
+bossattack_img = pygame.image.load(os.path.join("image", "bossattack.jpg")).convert()
+
 heart_img = pygame.image.load(os.path.join("image", "heart.png")).convert()
 boss_live_img = pygame.transform.scale(heart_img, (25, 25))
 boss_live_img.set_colorkey((0, 0, 0))
@@ -48,7 +51,7 @@ def draw_lobby():
     draw_text(screen, '在一次的任務中，遇到一群具攻擊性', 20, WIDTH/2, HEIGHT/4 + 75)
     draw_text(screen, '的不明生物，當前的首要目標是消滅', 20, WIDTH/2, HEIGHT/4 + 100)
     draw_text(screen, '他們，並存活下來', 20, WIDTH/2, HEIGHT/4 + 125)
-    draw_text(screen, '操作說明', 20, WIDTH/2, HEIGHT*3/4-130)
+    draw_text(screen, '操作說明', 20, WIDTH/2, HEIGHT*3/4-125)
     draw_text(screen, '→ 右移  ← 左移  空白鍵攻擊', 20, WIDTH/2, HEIGHT*3/4-100)
     draw_text(screen, '-按任意建開始-', 24, WIDTH/2, HEIGHT-100)
     pygame.display.update()
@@ -108,7 +111,6 @@ def draw_lostlives(surf, lives, img, x, y):
         img_rect.y = y
         surf.blit(img, img_rect)
 
-
 def print_bosshealth(surf, bosshp, x, y):
     if bosshp < 0:
         bosshp = 0
@@ -120,7 +122,6 @@ def print_bosshealth(surf, bosshp, x, y):
     pygame.draw.rect(surf, (255, 0 , 0), fill_rect)
     pygame.draw.rect(surf, (255, 255, 255), outline_rect, 2)
     draw_text(screen, str(boss.health) + '/' + str(BOSSHEALTH), 15, WIDTH-35, 1)
-
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -199,8 +200,8 @@ class PlayerAttack(pygame.sprite.Sprite):
 class BossAttack(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((20, 35))
-        self.image.fill((255, 255, 0))
+        self.image = pygame.transform.scale(bossattack_img, (30, 40))
+        self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect()
         self.rect.centerx = x + 50
         self.rect.bottom = y + 85
