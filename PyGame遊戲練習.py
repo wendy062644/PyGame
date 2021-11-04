@@ -2,6 +2,7 @@ import pygame
 import os
 
 from pygame import draw
+from pygame.constants import K_SPACE
 
 FPS = 60
 TIME = 0
@@ -24,6 +25,50 @@ boss_img = pygame.image.load(os.path.join("image", "boss.png")).convert()
 
 shoot_sound = pygame.mixer.Sound(os.path.join("sound", "shoot.wav"))
 damaged_sound = pygame.mixer.Sound(os.path.join("sound", "damaged.wav"))
+
+font_name = os.path.join("font.ttf")
+def draw_text(surf, text, size, x, y):
+    font = pygame.font.Font(font_name, size)
+    text_surface = font.render(text, True, (255, 255, 255))
+    text_rect = text_surface.get_rect()
+    text_rect.centerx = x
+    text_rect.top = y
+    surf.blit(text_surface, text_rect)
+
+def draw_lobby():
+    draw_text(screen, '大戰外星人', 64, WIDTH/2, HEIGHT/4)
+    draw_text(screen, '遊戲說明: → 右移  ← 左移  空白鍵攻擊', 25, WIDTH/2, HEIGHT/2-30)
+    draw_text(screen, '-按任意建開始-', 30, WIDTH/2, HEIGHT-100)
+    pygame.display.update()
+    waitting = True
+    while waitting:
+        clock.tick(FPS)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                waitting = False
+                pygame.quit()
+            elif event.type == pygame.KEYUP:
+                waitting = False
+
+def draw_end():
+    screen.blit(background_img, (0, 0))
+    draw_text(screen, '你的分數: ', 48, WIDTH/2, HEIGHT/4)
+    draw_text(screen, '-按任意鍵結束遊戲-', 30, WIDTH/2, HEIGHT-100)
+    pygame.display.update()
+    waitting = True
+    while waitting:
+        clock.tick(FPS)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                waitting = False
+                pygame.quit()
+            elif event.type == pygame.KEYUP:
+                waitting = False
+                pygame.quit()
+
+
 
 def print_health(surf, hp, x, y):
     if hp < 0:
@@ -60,7 +105,7 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         key_pressed = pygame.key.get_pressed()
-        if key_pressed[pygame.K_RIGHT] and self.rect.x < WIDTH-50:
+        if key_pressed[pygame.K_RIGHT] and self.rect.x < WIDTH-70:
             self.rect.x += self.MoveX
         if key_pressed[pygame.K_LEFT] and self.rect.x > 0:
             self.rect.x -= self.MoveX  
@@ -132,7 +177,13 @@ all_sprites.add(player)
 boss = Boss()
 all_sprites.add(boss)
 
+show_lobby = True
+
 while running:
+
+    if show_lobby:
+        draw_lobby()
+        show_lobby = False
 
     TIME += 1
 
@@ -158,6 +209,7 @@ while running:
         damaged_sound.play()
         if player.health == 0:
             running = False
+            
 
     bosshits = pygame.sprite.spritecollide(boss, PlayerBullet, True, pygame.sprite.collide_circle)
     for hit in bosshits:
@@ -169,5 +221,7 @@ while running:
     print_health(screen, player.health, 10, HEIGHT-15)
     print_bosshealth(screen, boss.health, 10, HEIGHT-15)
     pygame.display.update()
-
+    
+    if player.health == 0:
+        draw_end()
 pygame.quit()
