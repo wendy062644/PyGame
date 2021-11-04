@@ -23,6 +23,12 @@ pygame.display.set_caption("遊戲")
 background_img = pygame.image.load(os.path.join("image", "background.png")).convert()
 player_img = pygame.image.load(os.path.join("image", "player.png")).convert()
 boss_img = pygame.image.load(os.path.join("image", "boss.png")).convert()
+heart_img = pygame.image.load(os.path.join("image", "heart.png")).convert()
+boss_live_img = pygame.transform.scale(heart_img, (25, 25))
+boss_live_img.set_colorkey((0, 0, 0))
+heart1_img = pygame.image.load(os.path.join("image", "heart1.png")).convert()
+boss_lostlive_img = pygame.transform.scale(heart1_img, (25, 25))
+boss_lostlive_img.set_colorkey((0, 0, 0))
 
 shoot_sound = pygame.mixer.Sound(os.path.join("sound", "shoot.wav"))
 damaged_sound = pygame.mixer.Sound(os.path.join("sound", "damaged.wav"))
@@ -81,16 +87,32 @@ def print_health(surf, hp, x, y):
     pygame.draw.rect(surf, (0, 255, 0), fill_rect)
     pygame.draw.rect(surf, (255, 255, 255), outline_rect, 2)
 
+def draw_lives(surf, lives, img, x, y):
+    for i in range(lives):
+        img_rect = img.get_rect()
+        img_rect.x = x + 30*i
+        img_rect.y = y
+        surf.blit(img, img_rect)
+
+def draw_lostlives(surf, lives, img, x, y):
+    for i in range(lives):
+        img_rect = img.get_rect()
+        img_rect.x = x - (30*i)
+        img_rect.y = y
+        surf.blit(img, img_rect)
+
+
 def print_bosshealth(surf, bosshp, x, y):
     if bosshp < 0:
         bosshp = 0
-    BAR_LENGTH = WIDTH-20 
+    BAR_LENGTH = WIDTH-170
     BAR_HEIGTH = 10
     fill = (bosshp/BOSSHEALTH)*BAR_LENGTH
-    outline_rect = pygame.Rect(10, 1, BAR_LENGTH, BAR_HEIGTH)
-    fill_rect = pygame.Rect(10, 1, fill, BAR_HEIGTH)
+    outline_rect = pygame.Rect(100, 7, BAR_LENGTH, BAR_HEIGTH)
+    fill_rect = pygame.Rect(100, 7, fill, BAR_HEIGTH)
     pygame.draw.rect(surf, (255, 0 , 0), fill_rect)
     pygame.draw.rect(surf, (255, 255, 255), outline_rect, 2)
+    draw_text(screen, str(boss.health) + '/' + str(BOSSHEALTH), 15, WIDTH-35, 1)
 
 
 class Player(pygame.sprite.Sprite):
@@ -223,6 +245,7 @@ while running:
         if player.health == 0:
             running = False
             
+    screen.blit(background_img, (0, 0))
 
     bosshits = pygame.sprite.spritecollide(boss, PlayerBullet, True, pygame.sprite.collide_circle)
     for hit in bosshits:
@@ -230,14 +253,18 @@ while running:
         damaged_sound.play()
         if boss.health == 0:
             boss.lives += 1
+            if boss.lives == 4:
+                running = False
+                draw_end()
             boss.health =  boss.lives*200
             BOSSHEALTH = boss.lives*200
             boss.hide()
 
-    screen.blit(background_img, (0, 0))
     all_sprites.draw(screen)
     print_health(screen, player.health, 10, HEIGHT-15)
     print_bosshealth(screen, boss.health, 10, HEIGHT-15)
+    draw_lives(screen, 4 - boss.lives, boss_live_img, 5, 1)
+    draw_lostlives(screen, boss.lives, boss_lostlive_img, 65, 1)
     pygame.display.update()
     
     if player.health == 0:
