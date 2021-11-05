@@ -10,6 +10,7 @@ TIME = 0
 WIDTH = 500
 HEIGHT = 600
 BOSSHEALTH = 200
+SCORE = 0
 
 pygame.init() #初始化
 pygame.mixer.init
@@ -25,6 +26,7 @@ player_img = pygame.image.load(os.path.join("image", "player.png")).convert()
 boss_img = pygame.image.load(os.path.join("image", "boss.png")).convert()
 fireball_img = pygame.image.load(os.path.join("image", "fireball.png")).convert()
 bossattack_img = pygame.image.load(os.path.join("image", "bossattack.jpg")).convert()
+lobby_img = pygame.image.load(os.path.join("image", "lobby.jpg")).convert()
 
 heart_img = pygame.image.load(os.path.join("image", "heart.png")).convert()
 boss_live_img = pygame.transform.scale(heart_img, (25, 25))
@@ -46,6 +48,7 @@ def draw_text(surf, text, size, x, y):
     surf.blit(text_surface, text_rect)
 
 def draw_lobby():
+    screen.blit(lobby_img, (0, 0))
     draw_text(screen, '飛機冒險趣', 64, WIDTH/2, HEIGHT/4-60)
     draw_text(screen, '遊戲說明', 20, WIDTH/2, HEIGHT/4 + 50)
     draw_text(screen, '在一次的任務中，遇到一群具攻擊性', 20, WIDTH/2, HEIGHT/4 + 75)
@@ -70,7 +73,7 @@ def draw_lobby():
 
 def draw_end():
     screen.blit(background_img, (0, 0))
-    draw_text(screen, '你的分數: ', 48, WIDTH/2, HEIGHT/4)
+    draw_text(screen, '你的分數: ' + str(SCORE), 48, WIDTH/2, HEIGHT/4)
     draw_text(screen, '-按任意鍵結束遊戲-', 30, WIDTH/2, HEIGHT-100)
     pygame.display.update()
     waitting = True
