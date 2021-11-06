@@ -89,17 +89,18 @@ def draw_end():
                 waitting = False
                 pygame.quit()
 
-
 def print_health(surf, hp, x, y):
     if hp < 0:
         hp = 0
-    BAR_LENGTH = WIDTH-20 
+    BAR_LENGTH = WIDTH-80
     BAR_HEIGTH = 10
     fill = (hp/100)*BAR_LENGTH
     outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGTH)
     fill_rect = pygame.Rect(x, y, fill, BAR_HEIGTH)
     pygame.draw.rect(surf, (0, 255, 0), fill_rect)
     pygame.draw.rect(surf, (255, 255, 255), outline_rect, 2)
+    draw_text(screen, str(hp) + '/' + str(100), 15, WIDTH-35, y-7)
+
 
 def draw_lives(surf, lives, img, x, y):
     for i in range(lives):
@@ -166,7 +167,7 @@ class Boss(pygame.sprite.Sprite):
 
     def update(self):
         if self.hidden and pygame.time.get_ticks() - self.hide_time > 1000:
-            self.hide_time = False
+            self.hidden = False
             self.rect.centerx = WIDTH/2
             self.rect.y = 30
 
@@ -184,7 +185,8 @@ class Boss(pygame.sprite.Sprite):
     def hide(self):
         self.hidden = True
         self.hide_time = pygame.time.get_ticks()
-        self.rect.center = (WIDTH/2, HEIGHT+500)
+        self.rect.center = (WIDTH+500, HEIGHT+500)
+        
 
 class PlayerAttack(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -227,7 +229,6 @@ all_sprites.add(boss)
 show_lobby = True
 
 while running:
-
     if show_lobby:
         close = draw_lobby()
         if close:
