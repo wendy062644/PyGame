@@ -26,6 +26,7 @@ player_img = pygame.image.load(os.path.join("image", "player.png")).convert()
 boss_img = pygame.image.load(os.path.join("image", "boss.png")).convert()
 fireball_img = pygame.image.load(os.path.join("image", "fireball.png")).convert()
 bossattack_img = pygame.image.load(os.path.join("image", "bossattack.jpg")).convert()
+playerattack_img = pygame.image.load(os.path.join("image", "bullet.png")).convert()
 lobby_img = pygame.image.load(os.path.join("image", "lobby.jpg")).convert()
 
 heart_img = pygame.image.load(os.path.join("image", "heart.png")).convert()
@@ -188,8 +189,8 @@ class Boss(pygame.sprite.Sprite):
 class PlayerAttack(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((10, 30))
-        self.image.fill((255, 255, 0))
+        self.image = pygame.transform.scale(playerattack_img, (10, 30))
+        self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
