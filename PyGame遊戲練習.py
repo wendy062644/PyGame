@@ -24,6 +24,7 @@ pygame.display.set_caption("遊戲")
 background_img = pygame.image.load(os.path.join("image", "background.png")).convert()
 player_img = pygame.image.load(os.path.join("image", "player.png")).convert()
 boss_img = pygame.image.load(os.path.join("image", "boss.png")).convert()
+boss1_img = pygame.image.load(os.path.join("image", "boss1.png")).convert()
 fireball_img = pygame.image.load(os.path.join("image", "fireball.png")).convert()
 bossattack_img = pygame.image.load(os.path.join("image", "bossattack.jpg")).convert()
 playerattack_img = pygame.image.load(os.path.join("image", "bullet.png")).convert()
@@ -43,6 +44,14 @@ font_name = os.path.join("font.ttf")
 def draw_text(surf, text, size, x, y):
     font = pygame.font.Font(font_name, size)
     text_surface = font.render(text, True, (255, 255, 255))
+    text_rect = text_surface.get_rect()
+    text_rect.centerx = x
+    text_rect.top = y
+    surf.blit(text_surface, text_rect)
+
+def draw_score(surf, text, size, x, y):
+    font = pygame.font.Font(font_name, size)
+    text_surface = font.render(text, True, (255, 255, 0))
     text_rect = text_surface.get_rect()
     text_rect.centerx = x
     text_rect.top = y
@@ -89,17 +98,20 @@ def draw_end():
                 waitting = False
                 pygame.quit()
 
-def print_health(surf, hp, x, y):
+def print_health(surf, hp):
     if hp < 0:
         hp = 0
-    BAR_LENGTH = WIDTH-80
+    BAR_LENGTH = WIDTH-200
     BAR_HEIGTH = 10
     fill = (hp/100)*BAR_LENGTH
-    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGTH)
-    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGTH)
+    outline_rect = pygame.Rect(130, HEIGHT-20, BAR_LENGTH, BAR_HEIGTH)
+    fill_rect = pygame.Rect(130, HEIGHT-20, fill, BAR_HEIGTH)
     pygame.draw.rect(surf, (0, 255, 0), fill_rect)
     pygame.draw.rect(surf, (255, 255, 255), outline_rect, 2)
-    draw_text(screen, str(hp) + '/' + str(100), 15, WIDTH-35, y-7)
+    draw_text(screen, str(hp) + '/' + str(100), 15, WIDTH-35, HEIGHT-27)
+    draw_text(screen, 'Score:', 20, 30, HEIGHT-30)
+    draw_score(screen, str(SCORE), 20, 90, HEIGHT-30)
+
 
 
 def draw_lives(surf, lives, img, x, y):
@@ -116,7 +128,7 @@ def draw_lostlives(surf, lives, img, x, y):
         img_rect.y = y
         surf.blit(img, img_rect)
 
-def print_bosshealth(surf, bosshp, x, y):
+def print_bosshealth(surf, bosshp):
     if bosshp < 0:
         bosshp = 0
     BAR_LENGTH = WIDTH-170
@@ -135,6 +147,7 @@ class Player(pygame.sprite.Sprite):
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
         self.rect.center = (250, HEIGHT-55)
+        self.radius = 35
         self.MoveX = 5
         self.health = 100
 
@@ -174,8 +187,13 @@ class Boss(pygame.sprite.Sprite):
         self.rect.x += self.BossMove
         if self.rect.x > WIDTH-150:
             self.BossMove = -3
+            self.image = pygame.transform.scale(boss1_img, (150, 70))
+            self.image.set_colorkey((0, 0, 0))
+
         if self.rect.x < 0:
             self.BossMove = 3
+            self.image = pygame.transform.scale(boss_img, (150, 70))
+            self.image.set_colorkey((0, 0, 0))
 
     def Battack(self):
         Bbullet = BossAttack(self.rect.x, self.rect.y)
@@ -187,7 +205,6 @@ class Boss(pygame.sprite.Sprite):
         self.hide_time = pygame.time.get_ticks()
         self.rect.center = (WIDTH+500, HEIGHT+500)
         
-
 class PlayerAttack(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -265,6 +282,7 @@ while running:
     bosshits = pygame.sprite.spritecollide(boss, PlayerBullet, True, pygame.sprite.collide_circle)
     for hit in bosshits:
         boss.health -= 10
+        SCORE += 5
         damaged_sound.play()
         if boss.health == 0:
             boss.lives += 1
@@ -276,8 +294,8 @@ while running:
             boss.hide()
 
     all_sprites.draw(screen)
-    print_health(screen, player.health, 10, HEIGHT-15)
-    print_bosshealth(screen, boss.health, 10, HEIGHT-15)
+    print_health(screen, player.health)
+    print_bosshealth(screen, boss.health)
     draw_lives(screen, 4 - boss.lives, boss_live_img, 5, 1)
     draw_lostlives(screen, boss.lives, boss_lostlive_img, 65, 1)
     pygame.display.update()
