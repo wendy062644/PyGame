@@ -29,6 +29,8 @@ fireball_img = pygame.image.load(os.path.join("image", "fireball.png")).convert(
 bossattack_img = pygame.image.load(os.path.join("image", "bossattack.jpg")).convert()
 playerattack_img = pygame.image.load(os.path.join("image", "bullet.png")).convert()
 lobby_img = pygame.image.load(os.path.join("image", "lobby.jpg")).convert()
+player_img.set_colorkey((0, 0, 0))
+pygame.display.set_icon(player_img)
 
 heart_img = pygame.image.load(os.path.join("image", "heart.png")).convert()
 boss_live_img = pygame.transform.scale(heart_img, (25, 25))
